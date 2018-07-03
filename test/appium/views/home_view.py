@@ -58,6 +58,16 @@ class ChatElement(BaseButton):
 
         return DeleteButton(self.driver, self.locator.value)
 
+    def swipe_and_delete(self):
+        counter = 0
+        while counter < 10:
+            self.swipe_element()
+            if self.swipe_delete_button.is_element_present():
+                break
+            time.sleep(10)
+            counter += 1
+        self.swipe_delete_button.click()
+
 
 class ChatNameText(BaseText):
     def __init__(self, driver):
@@ -127,14 +137,3 @@ class HomeView(BaseView):
         start_new_chat.confirm()
         from views.chat_view import ChatView
         return ChatView(self.driver)
-
-    def swipe_and_delete_chat(self, chat_name: str):
-        chat_element = self.get_chat_with_user(chat_name)
-        counter = 0
-        while counter < 10:
-            chat_element.swipe_element()
-            if chat_element.swipe_delete_button.is_element_present():
-                break
-            time.sleep(10)
-            counter += 1
-        chat_element.swipe_delete_button.click()

@@ -212,13 +212,13 @@ class BaseView(object):
     def accept_agreements(self):
         iterations = int()
         from views.sign_in_view import CreateAccountButton, PasswordInput
-        while iterations <= 3 and not (CreateAccountButton(self.driver).is_element_displayed() or PasswordInput(
-                self.driver).is_element_displayed()):
+        if self.test_fairy_warning.is_element_displayed(10):
+            self.test_fairy_warning.is_shown = True
+        while iterations <= 3 and not (CreateAccountButton(self.driver).is_element_displayed(2) or PasswordInput(
+                self.driver).is_element_displayed(2)):
             for button in self.ok_button, self.continue_button:
-                if self.test_fairy_warning.is_element_displayed():
-                    self.test_fairy_warning.is_shown = True
                 try:
-                    button.wait_for_element(15)
+                    button.wait_for_element(3)
                     button.click()
                 except (NoSuchElementException, TimeoutException):
                     pass
@@ -235,6 +235,10 @@ class BaseView(object):
     def click_system_back_button(self):
         info('Click system back button')
         self.driver.press_keycode(4)
+
+    def cut_text(self):
+        info('Cut text')
+        self.driver.press_keycode(277)
 
     def copy_text(self):
         info('Copy text')

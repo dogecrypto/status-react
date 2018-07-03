@@ -117,7 +117,7 @@ class TestChatManagementMultiple(MultipleDeviceTestCase):
 
         chat_1.get_back_to_home_view()
         home_1 = chat_1.get_home_view()
-        home_1.swipe_and_delete_chat(public_chat_name)
+        home_1.get_chat_with_user(public_chat_name).swipe_and_delete()
 
         for home in home_2, home_1:
             home.relogin()
@@ -144,7 +144,7 @@ class TestChatManagement(SingleDeviceTestCase):
         chat_view.chat_message_input.send_keys('test message')
         chat_view.send_message_button.click()
         chat_view.get_back_to_home_view()
-        home_view.swipe_and_delete_chat(recipient['username'][:20])
+        home_view.get_chat_with_user(recipient['username']).swipe_and_delete()
         home_view.relogin()
         if home_view.get_chat_with_user(recipient['username']).is_element_present(20):
             pytest.fail('The chat is present after re-login')
@@ -189,7 +189,7 @@ class TestChatManagement(SingleDeviceTestCase):
         chat_view.chat_message_input.send_keys('This is text message!')
         chat_view.send_message_button.click()
         chat_view.get_back_to_home_view()
-        home_view.swipe_and_delete_chat(chat_name)
+        home_view.get_chat_with_user(chat_name).swipe_and_delete()
         home_view.relogin()
         if home_view.get_chat_with_user(chat_name).is_element_displayed():
             pytest.fail('The chat is present after re-login')

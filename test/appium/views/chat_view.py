@@ -5,7 +5,7 @@ from selenium.common.exceptions import TimeoutException
 from tests import info
 from views.base_element import BaseButton, BaseEditBox, BaseText, BaseElement
 from views.base_view import BaseView
-from views.profile_view import ProfilePictureElement
+from views.profile_view import ProfilePictureElement, PublicKeyText
 
 
 class ChatMessageInput(BaseEditBox):
@@ -45,10 +45,10 @@ class RequestCommand(BaseButton):
         self.locator = self.Locator.accessibility_id('request-payment-button')
 
 
-class EthAsset(BaseButton):
-    def __init__(self, driver):
-        super(EthAsset, self).__init__(driver)
-        self.locator = self.Locator.text_selector('ETH')
+class AssetCommand(BaseButton):
+    def __init__(self, driver, asset):
+        super(AssetCommand, self).__init__(driver)
+        self.locator = self.Locator.text_selector(asset)
 
 
 class ChatMenuButton(BaseButton):
@@ -194,11 +194,14 @@ class ChatElementByText(BaseText):
 
         return ProgressBar(self.driver, self.locator.value)
 
-    def contains_text(self, text) -> bool:
-        element = BaseText(self.driver)
-        element.locator = element.Locator.xpath_selector(
-            self.locator.value + "//android.view.ViewGroup//android.widget.TextView[@text='%s']" % text)
-        return element.is_element_displayed()
+    @property
+    def member_photo(self):
+        class MemberPhoto(BaseButton):
+            def __init__(self, driver, parent_locator):
+                super(MemberPhoto, self).__init__(driver)
+                self.locator = self.Locator.xpath_selector(parent_locator + "//*[@content-desc='member-photo']")
+
+        return MemberPhoto(self.driver, self.locator.value)
 
     @property
     def username(self):
@@ -218,6 +221,12 @@ class ChatElementByText(BaseText):
 
         return SendRequestButton(self.driver, self.locator.value)
 
+    def contains_text(self, text) -> bool:
+        element = BaseText(self.driver)
+        element.locator = element.Locator.xpath_selector(
+            self.locator.value + "//android.view.ViewGroup//android.widget.TextView[@text='%s']" % text)
+        return element.is_element_displayed()
+
 
 class ChatView(BaseView):
     def __init__(self, driver):
@@ -231,7 +240,6 @@ class ChatView(BaseView):
         self.commands_button = CommandsButton(self.driver)
         self.send_command = SendCommand(self.driver)
         self.request_command = RequestCommand(self.driver)
-        self.eth_asset = EthAsset(self.driver)
 
         self.chat_options = ChatMenuButton(self.driver)
         self.members_button = MembersButton(self.driver)
@@ -255,6 +263,7 @@ class ChatView(BaseView):
         self.contact_profile_picture = ProfilePictureElement(self.driver)
         self.profile_send_message = ProfileSendMessageButton(self.driver)
         self.profile_send_transaction = ProfileSendTransactionButton(self.driver)
+        self.public_key_text = PublicKeyText(self.driver)
 
     def wait_for_syncing_complete(self):
         info('Waiting for syncing complete:')
@@ -316,10 +325,10 @@ class ChatView(BaseView):
         self.clear_history_button.click()
         self.clear_button.click()
 
-    def send_transaction_in_1_1_chat(self, amount, password, wallet_set_up=False):
+    def send_transaction_in_1_1_chat(self, asset, amount, password, wallet_set_up=False):
         self.commands_button.click()
         self.send_command.click()
-        self.eth_asset.click()
+        self.asset_by_name(asset).click()
         self.send_as_keyevent(amount)
         send_transaction_view = self.get_send_transaction_view()
         if wallet_set_up:
@@ -352,7 +361,7 @@ class ChatView(BaseView):
     def request_transaction_in_1_1_chat(self, amount):
         self.commands_button.click()
         self.request_command.click()
-        self.eth_asset.click()
+        self.asset_by_name('ETH').click()
         self.send_as_keyevent(amount)
         self.send_message_button.click()
 
@@ -369,3 +378,8 @@ class ChatView(BaseView):
         today_height = today_text_element.size['height']
         if message_location < today_location + today_height:
             errors.append("Message '%s' is not uder 'Today' text" % text)
+
+    def asset_by_name(self, asset_name):
+        element = BaseButton(self.driver)
+        element.locator = element.Locator.text_selector(asset_name)
+        return element

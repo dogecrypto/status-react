@@ -69,7 +69,7 @@ class TestWallet(SingleDeviceTestCase):
         transaction_details.copy_transaction_hash_button.click()
         transaction_details.get_back_to_home_view()
         wallet_view.home_button.click()
-        chat_view = home_view.get_chat_with_user('user').click()
+        chat_view = home_view.join_public_chat(home_view.get_public_chat_name())
         chat_view.chat_message_input.paste_text_from_clipboard()
         if chat_view.chat_message_input.text != transaction_hash:
             pytest.fail('Transaction hash was not copied')
