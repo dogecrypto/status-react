@@ -172,17 +172,17 @@ function install_maven() {
 function install_react_native_cli() {
   cd "$(repo_path)"
 
-  local npm_command="npm"
+  local yarn_command="yarn"
 
   if is_linux && ! nvm_installed; then
     # aptitude version of node requires sudo for global install
-    npm_command="sudo npm"
+    yarn_command="sudo yarn"
   fi
 
-  if npm list -g | grep -q react-native-cli; then
+  if yarn global list | grep react-native-cli; then
     already_installed "react-native-cli"
   else
-    $npm_command install -g react-native-cli
+    $yarn_command global install react-native-cli
   fi
 }
 
@@ -205,6 +205,20 @@ function install_node_via_nvm() {
 
     local version=$(node -v)
     cecho "+ Node already installed ($version_alias $version via NVM)... skipping."
+  fi
+}
+
+function install_yarn() {
+  if ! program_exists "yarn"; then
+    if is_macos; then
+      brew_install yarn
+    elif is_linux; then
+      linux_update
+      linux_install yarn
+    fi
+  else
+    cecho \
+      "+ Yarn already installed ($(yarn -v) via package manager)... skipping."
   fi
 }
 
