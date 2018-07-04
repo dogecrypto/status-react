@@ -143,11 +143,11 @@ function install_homebrew_if_needed() {
 
     ruby -e "$(curl -fsSL \
       https://raw.githubusercontent.com/Homebrew/install/master/install)"
-
-    brew update
   else
     already_installed "Homebrew"
   fi
+
+  brew update
 }
 
 function install_android_sdk() {
