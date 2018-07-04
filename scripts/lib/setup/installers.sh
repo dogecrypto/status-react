@@ -226,6 +226,7 @@ function install_node_via_package_manager() {
   if ! program_exists "node"; then
     if is_macos; then
       brew_install node@8
+      brew_link node@8
     elif is_linux; then
       curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
       linux_update
